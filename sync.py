@@ -27,8 +27,7 @@ def download_image(url, filename):
                 for chunk in res.iter_content(1024):
                     f.write(chunk)
             return filepath
-    except:
-        pass
+    except: pass
     return None
 
 def parse_blocks(page_id):
@@ -55,18 +54,37 @@ def parse_blocks(page_id):
 
 def update_readme(full_content):
     with open("README.md", "r", encoding="utf-8") as f:
-        text = f.read()
+        lines = f.readlines()
 
-    # 这里已经帮你填好了暗号，并且保证了缩进正确
-    start_tag = ""
-    end_tag = ""
+    # 精确匹配你截图里的内容
+    start_tag = "\n"
+    end_tag = "\n"
     
-    if start_tag in text and end_tag in text:
-        start_idx = text.index(start_tag) + len(start_tag)
-        end_idx = text.index(end_tag)
-        new_text = text[:start_idx] + "\n\n" + full_content + "\n\n" + text[end_idx:]
+    new_lines = []
+    inside_target_zone = False
+    found_zone = False
+
+    for line in lines:
+        new_lines.append(line)
+        # 匹配到第 22 行
+        if start_tag.strip() in line:
+            inside_target_zone = True
+            found_zone = True
+            new_lines.append("\n" + full_content + "\n\n")
+        # 匹配到第 26 行
+        if end_tag.strip() in line:
+            inside_target_zone = False
+        
+        # 如果在 22 和 26 行之间，就跳过旧内容
+        if inside_target_zone and start_tag.strip() not in line and end_tag.strip() not in line:
+            new_lines.pop()
+
+    if found_zone:
         with open("README.md", "w", encoding="utf-8") as f:
-            f.write(new_text)
+            f.writelines(new_lines)
+        print("✅ 成功更新在周报更新区域！")
+    else:
+        print("❌ 错误：在 README 中没找到对应标签，请检查空格。")
 
 # --- 主程序 ---
 pages = get_all_pages()
@@ -78,11 +96,10 @@ for page in pages:
         if p["type"] == "title" and p["title"]:
             title = p["title"][0]["plain_text"]
             break
-    print(f"正在抓取: {title}")
     content = parse_blocks(page["id"])
     if content.strip():
+        # 在这里加上你想要的细灰色分割线 ---
         all_md.append(f"### 📅 {title}\n{content}\n\n---")
 
 if all_md:
     update_readme("\n\n".join(all_md))
-    print("✅ 全部同步完成！")
