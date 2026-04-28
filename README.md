@@ -18,11 +18,8 @@
 
 ## 📅 周报更新 (Updates)
 
-<!-- WEEKLY-REPORT-START -->
-
-
-
-<!-- WEEKLY-REPORT-END -->
+[HERE_START]
+[HERE_END]
 
 
 ---
