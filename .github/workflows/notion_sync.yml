@@ -1,30 +1,36 @@
-name: Advanced Notion Sync
+name: Sync Notion to README
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 18 * * *'
+    - cron: "0 9 * * 1"   # 每周一执行
 
 jobs:
-  notion_to_github:
+  sync:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: 拉代码
+        uses: actions/checkout@v4
 
-      - name: Sync Notion to README
-        uses: dvanoni/notion-to-github-actions@v2.0.0
+      - name: Python环境
+        uses: actions/setup-python@v4
         with:
-          notion_token: ${{ secrets.NOTION_TOKEN }}
-          notion_database_id: ${{ secrets.NOTION_DATABASE_ID }}
-          template_file: './README.md'
-          output_file: './README.md'
-          marker: 'notion'
+          python-version: "3.11"
 
-      - name: Commit and Push changes
+      - name: 安装依赖
+        run: pip install requests
+
+      - name: 执行脚本
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
+        run: python sync.py
+
+      - name: 提交更新
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "bot"
+          git config user.email "bot@users.noreply.github.com"
           git add .
-          git commit -m "Update Weekly Log from Notion" || echo "No changes to commit"
+          git commit -m "update weekly report" || echo "no changes"
           git push
