@@ -18,7 +18,9 @@
 
 ## 📅 周报更新 (Updates)
 
-### Week 17
+<!-- WEEKLY-REPORT-START -->
+这里会被自动替换
+<!-- WEEKLY-REPORT-END -->
 
 
 ---
