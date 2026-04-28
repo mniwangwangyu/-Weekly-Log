@@ -1,9 +1,9 @@
-name: Advanced Notion Sync (Local Images & Partial Update)
+name: Advanced Notion Sync
 
 on:
-  workflow_dispatch: # 允许你手动点击按钮触发
+  workflow_dispatch:
   schedule:
-    - cron: '0 18 * * *' # 每天凌晨 2 点自动运行
+    - cron: '0 18 * * *'
 
 jobs:
   notion_to_github:
@@ -13,29 +13,18 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Sync Notion to README
-        uses: mofun--dev/notion-to-github-actions@v1.1.0
+        uses: dvanoni/notion-to-github-action@v2.0.0
         with:
           notion_token: ${{ secrets.NOTION_TOKEN }}
           notion_database_id: ${{ secrets.NOTION_DATABASE_ID }}
-          
-          # 1. 局部更新设置：只替换锚点之间的内容
           template_file: './README.md'
           output_file: './README.md'
           marker: 'notion'
-          
-          # 2. 排序设置：根据你在 Notion 里改名为 'Date' 的那一列排序
-          sort_by: 'Date' 
-          sort_order: 'descending'
-          
-          # 3. 图片自动下载：下载到仓库并修改 README 链接
-          download_image: true
-          image_output_path: './images/notion'
-          image_public_path: './images/notion'
 
       - name: Commit and Push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Update Weekly Log from Notion with Images" || echo "No changes to commit"
+          git commit -m "Update Weekly Log from Notion" || echo "No changes to commit"
           git push
