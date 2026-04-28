@@ -1,94 +1,89 @@
 import requests
 import os
+import re
+from PIL import Image  # 新增：图片处理库
+from io import BytesIO
 
-# 1. 配置环境
+# 1. 配置
 NOTION_TOKEN = os.environ["NOTION_TOKEN"]
 DATABASE_ID = os.environ["NOTION_PAGE_ID"]
+IMAGE_DIR = "images"
 
 headers = {
     "Authorization": f"Bearer {NOTION_TOKEN}",
     "Notion-Version": "2022-06-28",
 }
 
-def get_all_pages():
-    url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
-    payload = {"sorts": [{"timestamp": "last_edited_time", "direction": "descending"}]}
-    res = requests.post(url, json=payload, headers=headers)
-    return res.json().get("results", []) if res.status_code == 200 else []
+if not os.path.exists(IMAGE_DIR):
+    os.makedirs(IMAGE_DIR)
 
-def download_image(url, filename):
-    if not os.path.exists("images"):
-        os.makedirs("images")
-    filepath = os.path.join("images", filename)
+def download_and_compress_image(url, filename):
+    """下载、压缩并保存图片"""
     try:
-        res = requests.get(url, stream=True)
-        if res.status_code == 200:
-            with open(filepath, "wb") as f:
-                for chunk in res.iter_content(1024):
-                    f.write(chunk)
-            return filepath
-    except: pass
+        clean_name = re.sub(r'[\\/:*?"<>|]', '_', filename)
+        local_path = os.path.join(IMAGE_DIR, f"{clean_name}.webp") # 推荐用 webp 格式，体积更小
+        
+        r = requests.get(url)
+        if r.status_code == 200:
+            img = Image.open(BytesIO(r.content))
+            
+            # 1. 自动转换颜色模式（防止 CMYK 等模式报错）
+            if img.mode in ("RGBA", "P"):
+                img = img.convert("RGB")
+            
+            # 2. 限制最大宽度为 1200px (展示绰绰有余)
+            max_width = 1200
+            if img.width > max_width:
+                height = int((max_width / img.width) * img.height)
+                img = img.resize((max_width, height), Image.Resampling.LANCZOS)
+            
+            # 3. 压缩并保存为 webp (质量设为 75)
+            img.save(local_path, "WEBP", quality=75, optimize=True)
+            return local_path
+    except Exception as e:
+        print(f"压缩失败: {e}")
     return None
 
-def parse_blocks(page_id):
+def parse_blocks(page_id, page_title):
     url = f"https://api.notion.com/v1/blocks/{page_id}/children"
     res = requests.get(url, headers=headers)
     blocks = res.json().get("results", [])
     md = []
     img_count = 0
+    
     for block in blocks:
         b_type = block["type"]
         if b_type == "paragraph":
-            rich_texts = block["paragraph"]["rich_text"]
-            if rich_texts:
-                md.append(rich_texts[0]["plain_text"])
+            texts = block["paragraph"]["rich_text"]
+            if texts: md.append(texts[0]["plain_text"])
         elif b_type == "image":
             img_count += 1
             img_obj = block["image"]
-            img_url = img_obj["file"]["url"] if "file" in img_obj else img_obj["external"]["url"]
-            img_filename = f"notion_{page_id[:8]}_{img_count}.png"
-            local_path = download_image(img_url, img_filename)
+            remote_url = img_obj["file"]["url"] if "file" in img_obj else img_obj["external"]["url"]
+            
+            local_name = f"{page_title}_{img_count}"
+            local_path = download_and_compress_image(remote_url, local_name)
             if local_path:
-                md.append(f"![image](images/{img_filename})")
+                # 引用 GitHub 本地压缩后的图片
+                md.append(f"![{page_title}](https://raw.githubusercontent.com/{os.environ.get('GITHUB_REPOSITORY')}/main/{local_path})")
+    
     return "\n\n".join(md)
 
 def update_readme(full_content):
     with open("README.md", "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    # 精确匹配你截图里的内容
-    start_tag = "\n"
-    end_tag = "\n"
-    
-    new_lines = []
-    inside_target_zone = False
-    found_zone = False
-
-    for line in lines:
-        new_lines.append(line)
-        # 匹配到第 22 行
-        if start_tag.strip() in line:
-            inside_target_zone = True
-            found_zone = True
-            new_lines.append("\n" + full_content + "\n\n")
-        # 匹配到第 26 行
-        if end_tag.strip() in line:
-            inside_target_zone = False
-        
-        # 如果在 22 和 26 行之间，就跳过旧内容
-        if inside_target_zone and start_tag.strip() not in line and end_tag.strip() not in line:
-            new_lines.pop()
-
-    if found_zone:
+        text = f.read()
+    start_tag, end_tag = "[HERE_START]", "[HERE_END]"
+    if start_tag in text and end_tag in text:
+        pre = text.split(start_tag)[0]
+        post = text.split(end_tag)[-1]
+        new_text = f"{pre}{start_tag}\n\n{full_content.strip()}\n\n{end_tag}{post}"
         with open("README.md", "w", encoding="utf-8") as f:
-            f.writelines(new_lines)
-        print("✅ 成功更新在周报更新区域！")
-    else:
-        print("❌ 错误：在 README 中没找到对应标签，请检查空格。")
+            f.write(new_text)
+        print("✅ 压缩版同步完成！")
 
 # --- 主程序 ---
 pages = get_all_pages()
-all_md = []
+all_articles = []
 for page in pages:
     props = page["properties"]
     title = "未命名"
@@ -96,10 +91,9 @@ for page in pages:
         if p["type"] == "title" and p["title"]:
             title = p["title"][0]["plain_text"]
             break
-    content = parse_blocks(page["id"])
+    content = parse_blocks(page["id"], title)
     if content.strip():
-        # 在这里加上你想要的细灰色分割线 ---
-        all_md.append(f"### 📅 {title}\n{content}\n\n---")
+        all_articles.append(f"<details><summary><b>📅 {title} (点击查看压缩预览)</b></summary>\n\n{content}\n\n<hr/></details>")
 
-if all_md:
-    update_readme("\n\n".join(all_md))
+if all_articles:
+    update_readme("\n".join(all_articles))
