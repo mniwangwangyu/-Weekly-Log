@@ -68,7 +68,7 @@ def update_readme(full_content):
     with open("README.md", "r", encoding="utf-8") as f:
         text = f.read()
 
-   start_tag = ""
+ start_tag = ""
     end_tag = ""
     
     if start_tag in text and end_tag in text:
