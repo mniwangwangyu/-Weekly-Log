@@ -20,7 +20,7 @@
 
 [HERE_START]
 
-<details><summary><b>📂 学习周报 01</b></summary>
+<details><summary><b>📂 周报 01</b></summary>
 
 #### 修改了泰山的地图
 
@@ -144,7 +144,7 @@ http://viewfinderpanoramas.org/Coverage map viewfinderpanoramas_org3.htm
 
 <hr/></details>
 
-<details><summary><b>📂 周报6</b></summary>
+<details><summary><b>📂 周报06</b></summary>
 
 https://notebooklm.google.com/notebook/598fbcd8-60e5-4688-8f96-11e24039a1f3
 
@@ -212,6 +212,37 @@ AI生成的一些岩石和土壤的肌理图再去PS里面绘制
 ![work](images/p_34ce_1.webp)
 
 ![work](images/p_34ce_2.webp)
+
+
+<hr/></details>
+
+<details><summary><b>📂 周报10</b></summary>
+
+优化了泰山的剖面图，先用平板画出颜色和分层范围
+
+![work](images/p_352e_1.webp)
+
+然后丢到chatgpt里面推提示词，再把提示词丢AI，试了gemini和ChatGPT感觉后者生出来的图好看一些即使是同一段提示词。
+
+Gemini                                                                                                                                                                                                                                                                            ChatGPT
+
+![work](images/p_352e_2.webp)
+
+后面直接使用的ChatGPT生图，因为反复改图会导致幻觉严重，我是使用的每次改图有效后直接修改开始的提示词重新开启对话。
+
+然后找了一些参考图
+
+![work](images/p_352e_3.webp)
+
+![work](images/p_352e_4.webp)
+
+![work](images/p_352e_5.webp)
+
+然后这一周还研究了一下github，靠Gemini写代码搞了一个让notion周报自动上传github的脚本。现在这个脚本设定是每周自动搬运周报到github中我学习仓库周报更新的区域，给它设定的是折叠的形式，平时就只看得到标题，点开折叠页展开就能看全文。还设定了自动抓取文件的功能避免了图片是链接形式丢失的风险，为了避免仓库过大后面又加了压缩图片的功能，不过现在目前看还是有点问题，压缩了之后有些图片显示有点小问题。
+
+这周才开始用这个功能还不确定好不好用
+
+![work](images/p_352e_6.webp)
 
 
 <hr/></details>
