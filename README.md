@@ -19,6 +19,213 @@
 ## 📅 周报更新 (Updates)
 
 [HERE_START]
+
+<details>
+<summary><b>📅 学习周报 01 (点击查看完整记录)</b></summary>
+
+## 修改了泰山的地图
+
+### 颜色
+
+下面找的是翠绿色，上面是岩石色
+
+开始我是吸色的学长图里面的绿色，后面导入blender里面发现颜色有点浅（色带如图）又去找的色卡
+
+岩石色部分还没找到比较好看的颜色
+
+                                                                                                                             终版
+
+### 形态
+
+将图的范围缩小了
+
+                                 之前                                                                                           现在     
+
+对周围的山进行了修改
+
+![image](images/学习周报_01_1.webp)
+
+将泰山拔高周围山降低 。我用的学长发在群里的方法
+
+但是山顶变平了，后面我加了一层高斯模糊稍微好一些
+
+![image](images/学习周报_01_2.webp)
+
+修改后的摄像机位置变低
+
+![image](images/学习周报_01_3.webp)
+
+## 野山参分布图
+
+参考图
+
+![image](images/学习周报_01_4.webp)
+
+在地理空间数据云上下载的东北三省DEM有问题，求助学长，拿到了下载DEM数据的网站
+
+http://viewfinderpanoramas.org/Coverage map viewfinderpanoramas_org3.htm
+
+![image](images/学习周报_01_5.webp)
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报02 (点击查看完整记录)</b></summary>
+
+这周尝试了使用aerialod。 如果不会打光的话感觉很方便，比我自己在blender打光做出来的好看
+
+视角参考   感觉微微侧一下能明显看到登山路线
+
+![image](images/周报02_1.webp)
+
+针对上周山顶扁平的解决方法
+
+1.在aerialod里面是出图的时候在ps里面使用液化工具处理了一下
+
+2.求助学长说是拉伸问题，然后在blender里面用实体建模不直接置换的话会解决
+
+学长帮我在blender里面拉的DEM
+
+![image](images/周报02_2.webp)
+
+之前我是用的直接置换的方式，后面我尝试用实体建模复刻了一遍，没有出现山峰扁平的问题了。但是打光技术不太好，整体而言感觉aerialod的出图效果好一点
+
+![image](images/周报02_3.webp)
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报03 (点击查看完整记录)</b></summary>
+
+![image](images/周报03_1.webp)
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报05 (点击查看完整记录)</b></summary>
+
+![image](images/周报05_1.webp)
+
+这个是换了区域颜色加强了边界
+
+![image](images/周报05_2.webp)
+
+把区域的饱和度降低了一下
+
+![image](images/周报05_3.webp)
+
+尝试了其他颜色的标注
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报04 (点击查看完整记录)</b></summary>
+
+## 一 泰山修改
+
+![image](images/周报04_1.webp)
+
+打光模仿了参考图 打成了日出的光感  测试了两个角度
+
+## 二长白山修改
+
+把DEM放进arcgis生成等高线，使用soothline后导出shp文件  再将文件拖进qgis导出布局
+
+打光稍微改了一下 感觉可能…立体了
+
+## 三长白山野山参
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 泰山修改 23 (点击查看完整记录)</b></summary>
+
+![image](images/泰山修改_23_1.webp)
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报6 (点击查看完整记录)</b></summary>
+
+https://notebooklm.google.com/notebook/598fbcd8-60e5-4688-8f96-11e24039a1f3
+
+![image](images/周报6_1.webp)
+
+![image](images/周报6_2.webp)
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报07 (点击查看完整记录)</b></summary>
+
+![image](images/周报07_1.webp)
+
+![image](images/周报07_2.webp)
+
+这周使用了gaea优化DEM再倒入blender的方式做了泰山模型
+
+开始想用的是blender里面直接建模泰山的剖面，发现自己不太会blender建模后面是用的Gemini直接生成剖面然后p上去的。
+
+Gemini生成的剖面颜色和材质不太准确后面改了改
+
+![image](images/周报07_3.webp)
+
+![image](images/周报07_4.webp)
+
+然后是基于上一周文字调研让Gemini完整的出了一版池州傩戏从视觉规范到文案的方案，方案里面排版部分不太行，但是图表部分还行。
+
+https://gemini.google.com/share/c635d11c8180
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报08 (点击查看完整记录)</b></summary>
+
+DEM降低了三分之一左右
+
+![image](images/周报08_1.webp)
+
+和Gemini咨询了关于泰山形成和土壤及岩石垂直分层的问题https://gemini.google.com/share/78e9d298222d
+
+![image](images/周报08_2.webp)
+
+![image](images/周报08_3.webp)
+
+![image](images/周报08_4.webp)
+
+![image](images/周报08_5.webp)
+
+AI生成的一些岩石和土壤的肌理图再去PS里面绘制
+
+![image](images/周报08_6.webp)
+
+再用AI单独把底座剖面自然融合
+
+![image](images/周报08_7.webp)
+
+片麻岩和花岗岩的部分还在做目前做的图片感觉不太行很突兀
+
+
+<hr/></details>
+
+<details>
+<summary><b>📅 周报09 (点击查看完整记录)</b></summary>
+
+![image](images/周报09_1.webp)
+
+![image](images/周报09_2.webp)
+
+
+<hr/></details>
+
 [HERE_END]
 
 
