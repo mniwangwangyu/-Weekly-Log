@@ -1,99 +1,94 @@
-import requests
 import os
-import re
-from PIL import Image  # 新增：图片处理库
+import requests
+from PIL import Image
 from io import BytesIO
+import re
 
-# 1. 配置
-NOTION_TOKEN = os.environ["NOTION_TOKEN"]
-DATABASE_ID = os.environ["NOTION_PAGE_ID"]
-IMAGE_DIR = "images"
+# 配置环境
+NOTION_TOKEN = os.getenv('NOTION_TOKEN')
+DATABASE_ID = os.getenv('NOTION_PAGE_ID')
 
 headers = {
     "Authorization": f"Bearer {NOTION_TOKEN}",
-    "Notion-Version": "2022-06-28",
+    "Content-Type": "application/json",
+    "Notion-Version": "2022-06-28"
 }
 
-if not os.path.exists(IMAGE_DIR):
-    os.makedirs(IMAGE_DIR)
+def get_all_pages():
+    """获取 Notion 数据库中所有的周报页面"""
+    url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
+    all_pages = []
+    has_more = True
+    start_cursor = None
+    while has_more:
+        payload = {"start_cursor": start_cursor} if start_cursor else {}
+        res = requests.post(url, json=payload, headers=headers)
+        if res.status_code != 200: break
+        data = res.json()
+        all_pages.extend(data.get("results", []))
+        has_more = data.get("has_more")
+        start_cursor = data.get("next_cursor")
+    return all_pages
 
-def download_and_compress_image(url, filename):
-    """下载、压缩并保存图片"""
+def download_and_compress_img(url, filename):
+    """关键：下载并将 4K 渲染图压缩为 WebP"""
+    if not os.path.exists('images'): os.makedirs('images')
     try:
-        clean_name = re.sub(r'[\\/:*?"<>|]', '_', filename)
-        local_path = os.path.join(IMAGE_DIR, f"{clean_name}.webp") # 推荐用 webp 格式，体积更小
-        
-        r = requests.get(url)
-        if r.status_code == 200:
-            img = Image.open(BytesIO(r.content))
-            
-            # 1. 自动转换颜色模式（防止 CMYK 等模式报错）
-            if img.mode in ("RGBA", "P"):
-                img = img.convert("RGB")
-            
-            # 2. 限制最大宽度为 1200px (展示绰绰有余)
-            max_width = 1200
-            if img.width > max_width:
-                height = int((max_width / img.width) * img.height)
-                img = img.resize((max_width, height), Image.Resampling.LANCZOS)
-            
-            # 3. 压缩并保存为 webp (质量设为 75)
-            img.save(local_path, "WEBP", quality=75, optimize=True)
-            return local_path
-    except Exception as e:
-        print(f"压缩失败: {e}")
+        res = requests.get(url, timeout=15)
+        if res.status_code == 200:
+            img = Image.open(BytesIO(res.content))
+            path = f"images/{filename}.webp"
+            # 保持 80 质量，体积缩小 90%
+            img.save(path, "WEBP", quality=80)
+            return path
+    except: return None
     return None
 
-def parse_blocks(page_id, page_title):
-    url = f"https://api.notion.com/v1/blocks/{page_id}/children"
-    res = requests.get(url, headers=headers)
-    blocks = res.json().get("results", [])
-    md = []
-    img_count = 0
-    
-    for block in blocks:
-        b_type = block["type"]
-        if b_type == "paragraph":
-            texts = block["paragraph"]["rich_text"]
-            if texts: md.append(texts[0]["plain_text"])
-        elif b_type == "image":
-            img_count += 1
-            img_obj = block["image"]
-            remote_url = img_obj["file"]["url"] if "file" in img_obj else img_obj["external"]["url"]
-            
-            local_name = f"{page_title}_{img_count}"
-            local_path = download_and_compress_image(remote_url, local_name)
-            if local_path:
-                # 引用 GitHub 本地压缩后的图片
-                md.append(f"![{page_title}](https://raw.githubusercontent.com/{os.environ.get('GITHUB_REPOSITORY')}/main/{local_path})")
-    
-    return "\n\n".join(md)
+def main():
+    pages = get_all_pages()
+    if not pages: return
 
-def update_readme(full_content):
+    # README 的头部内容
+    new_content = "# My Design Portfolio\n\n> 自动化周报系统已上线记录 AetherPet 等项目进度。\n\n"
+
+    for index, page in enumerate(pages):
+        # 获取标题（假设 Notion 属性名是 'Name'）
+        title_list = page['properties'].get('Name', {}).get('title', [])
+        title = title_list[0]['plain_text'] if title_list else f"Weekly Report {index}"
+        
+        # 获取封面图或页面内的第一张图
+        cover_url = page.get('cover', {}).get('external', {}).get('url') or \
+                    page.get('cover', {}).get('file', {}).get('url')
+        
+        img_path = ""
+        if cover_url:
+            img_filename = f"report_{index}"
+            img_path = download_and_compress_img(cover_url, img_filename)
+
+        # 核心：生成 HTML 折叠框结构
+        new_content += f"<details>\n<summary>📅 {title} (点击展开详情)</summary>\n\n"
+        if img_path:
+            new_content += f"![{title}]({img_path})\n\n"
+        new_content += "*(内容已由 Smart Bot 自动同步)*\n\n"
+        new_content += "</details>\n\n"
+
+    # 物理替换 README 中的内容
     with open("README.md", "r", encoding="utf-8") as f:
-        text = f.read()
-    start_tag, end_tag = "[HERE_START]", "[HERE_END]"
-    if start_tag in text and end_tag in text:
-        pre = text.split(start_tag)[0]
-        post = text.split(end_tag)[-1]
-        new_text = f"{pre}{start_tag}\n\n{full_content.strip()}\n\n{end_tag}{post}"
+        old_readme = f.read()
+
+    # 使用之前约定的分隔符逻辑
+    start_marker = ""
+    end_marker = ""
+    
+    if start_marker in old_readme and end_marker in old_readme:
+        pattern = f"{start_marker}.*?{end_marker}"
+        replacement = f"{start_marker}\n{new_content}\n{end_marker}"
+        final_readme = re.sub(pattern, replacement, old_readme, flags=re.DOTALL)
         with open("README.md", "w", encoding="utf-8") as f:
-            f.write(new_text)
-        print("✅ 压缩版同步完成！")
+            f.write(final_readme)
+        print("✅ 完美同步！")
+    else:
+        print("❌ 没在 README 里找到分隔符，请确保 README 包含那两行注释。")
 
-# --- 主程序 ---
-pages = get_all_pages()
-all_articles = []
-for page in pages:
-    props = page["properties"]
-    title = "未命名"
-    for p in props.values():
-        if p["type"] == "title" and p["title"]:
-            title = p["title"][0]["plain_text"]
-            break
-    content = parse_blocks(page["id"], title)
-    if content.strip():
-        all_articles.append(f"<details><summary><b>📅 {title} (点击查看压缩预览)</b></summary>\n\n{content}\n\n<hr/></details>")
-
-if all_articles:
-    update_readme("\n".join(all_articles))
+if __name__ == "__main__":
+    main()
