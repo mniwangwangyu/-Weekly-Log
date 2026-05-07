@@ -249,6 +249,23 @@ Gemini                                                                          
 
 <hr/></details>
 
+<details><summary><b>📂 周报11</b></summary>
+
+用blender贴不同的材质来做分层
+
+![work](images/p_359e_1.webp)
+
+![work](images/p_359e_2.webp)
+
+利用颜色渐变来设定每层的宽度 波浪纹理配合映射设定形状
+
+还没有弄完只有第三层贴上了砂砾感觉的土壤
+
+不会的部分就提问给Gemini一步一步教我
+
+
+<hr/></details>
+
 [HERE_END]
 
 
