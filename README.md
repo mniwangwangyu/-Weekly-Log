@@ -20,6 +20,27 @@
 
 [HERE_START]
 
+<details><summary><b>📂 周报12</b></summary>
+
+![work](images/p_365e_1.webp)
+
+AI生成合适的肌理图片放在blender贴图和置换节点
+
+![work](images/p_365e_2.webp)
+
+![work](images/p_365e_3.webp)
+
+凹凸控制立体程度，用映射单独控制每一层的纹理位置
+
+![work](images/p_365e_4.webp)
+
+还有侧面侵入岩石部分没有完成
+
+![work](images/p_365e_5.webp)
+
+
+<hr/></details>
+
 <details><summary><b>📂 周报11</b></summary>
 
 用blender贴不同的材质来做分层
