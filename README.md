@@ -20,6 +20,96 @@
 
 [HERE_START]
 
+<details><summary><b>📂 周报13</b></summary>
+
+![work](images/p_36de_1.webp)
+
+![work](images/p_36de_2.webp)
+
+这是用的网站的2d接口，现在这个2D有问题是因为我后面有改了下代码想让他自动搭建节点后面出问题了，实际应该是3层
+
+![work](images/p_36de_3.webp)
+
+这是用的网站的3d接口
+
+![work](images/p_36de_4.webp)
+
+2D的缺点就是层数是准确的，但是每层厚度只能根据时间还进行推演不太精准。3D能解决厚度不准确的问题，但是地区原因基本没有国内数据。后面尝试利用中国地质库的地质数据手动输入进脚本里面试试，类似下图。今天试了一下下载地质库的数据莫名其妙下载不了。
+
+![work](images/p_36de_5.webp)
+
+import bpy
+import urllib.request
+import json
+
+### 1. 🌎 核心坐标（我们把坐标稍微往外扩散，允许代码抓取泰山区域的整体复合地层）
+
+lat, lng = "36.257", "117.106"
+
+### 📡 纯联网请求：撞击 Macrostrat 地图复合图层接口
+
+url = f"https://macrostrat.org/api/v2/geologic_units/map?lat={lat}&lng={lng}&adjacents=true"
+layers = []
+error_message = None
+
+try:
+req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+with urllib.request.urlopen(req, timeout=5) as response:
+data = json.loads(response.read().decode())
+# 💥 核心魔术：把周边的、重叠的所有地质单元全部合流进来！
+layers = data['success']['data']
+except Exception as e:
+error_message = f"网络连接砸了: {e}"
+
+### 🚨 铁血红线：没网或者彻底限流，立刻弹窗报错
+
+if error_message or not layers:
+if not error_message: error_message = "服务器拒绝服务，未返回任何数据！"
+def draw_error(self, context): self.layout.label(text=error_message, icon='CANCEL')
+bpy.context.window_manager.popup_menu(draw_error, title="❌ 联网驱动彻底中断", icon='ERROR')
+raise ConnectionError(error_message)
+
+### ========================================================
+
+### 🔮 【高级设计师破局点】把平面上散落的岩层，按地质年龄在三维空间中垂直强行堆叠！
+
+### ========================================================
+
+### 剔除重名废数据
+
+unique_layers = {}
+for l in layers:
+name = l.get('strat_name', l.get('unit_name', '未知'))
+if name not in unique_layers and name != '未知':
+unique_layers[name] = l
+sorted_layers = list(unique_layers.values())
+
+### 核心魔法：按岩石老迈程度（最大年龄）从大到小排序，让老地基在最下面
+
+sorted_layers.sort(key=lambda x: x.get('best_b_age', 0), reverse=True)
+num_layers = len(sorted_layers)
+
+### ========================================================
+
+### 2. 联动 Blender 材质面板，开始全自动重构
+
+### ========================================================
+
+obj = bpy.context.active_object
+if obj and obj.active_material:
+mat = obj.active_material
+nodes = mat.node_tree.nodes
+links = mat.node_tree.links
+
+3D由于数据原因没有国内的地质数据，我现在是让脚本以泰山为圆心扒取几公里范围内岩层最多的数据，但是和事实的三层对比依旧错误。
+
+![work](images/p_36de_6.webp)
+
+后面试了先检索3D数据后面检索2D数据会莫名其妙出现网络接口问题，现在还在弄。
+
+
+<hr/></details>
+
 <details><summary><b>📂 周报12</b></summary>
 
 ![work](images/p_365e_1.webp)
