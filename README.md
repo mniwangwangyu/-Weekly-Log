@@ -20,6 +20,50 @@
 
 [HERE_START]
 
+<details><summary><b>📂 周报15</b></summary>
+
+![work](images/p_379e_1.webp)
+
+原图去掉文字调整后
+
+![work](images/p_379e_2.webp)
+
+![work](images/p_379e_3.webp)
+
+![work](images/p_379e_4.webp)
+
+![work](images/p_379e_5.webp)
+
+![work](images/p_379e_6.webp)
+
+![work](images/p_379e_7.webp)
+
+![work](images/p_379e_8.webp)
+
+![work](images/p_379e_9.webp)
+
+
+<hr/></details>
+
+<details><summary><b>📂 周报14</b></summary>
+
+![work](images/p_374e_1.webp)
+
+六层岩石效果
+
+![work](images/p_374e_2.webp)
+
+![work](images/p_374e_3.webp)
+
+用白色来控制他侧面的宽度，调节到不漏出白色层就是正确的
+
+![work](images/p_374e_4.webp)
+
+代码工作流程是根据提供的坐标去网站搜索表面岩石层和岩层年龄，然后根据一般规律测算出层数和厚度。
+
+
+<hr/></details>
+
 <details><summary><b>📂 周报13</b></summary>
 
 ![work](images/p_36de_1.webp)
