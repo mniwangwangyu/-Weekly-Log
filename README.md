@@ -42,6 +42,10 @@
 
 ![work](images/p_379e_9.webp)
 
+![work](images/p_379e_10.webp)
+
+![work](images/p_379e_11.webp)
+
 
 <hr/></details>
 
